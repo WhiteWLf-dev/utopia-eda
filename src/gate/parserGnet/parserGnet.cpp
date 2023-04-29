@@ -15,7 +15,10 @@ namespace RTlil = Yosys::RTLIL;
 using eda::gate::model::Gate;
 using eda::gate::model::GateSymbol;
 using GateId = eda::gate::model::Gate::Id;
+using eda::gate::optimizer::RWDatabase;
+//using eda::gate::optimizer::RWDatabase::BoundGNetList;
 using eda::gate::simulator::Simulator;
+
 
 class YosysManager {
 public:
@@ -434,4 +437,20 @@ std::vector<uint64_t> buildTruthTab(
     }
   }
   return tMean;
+}
+
+void fillDatabase(const NetData &nets, RWDatabase &database) {
+  std::uint32_t id = 0;
+  for (const auto& net: nets.combNets) {
+    RWDatabase::BoundGNet bounder;
+    for (auto link: net->sourceLinks()) {
+      bounder.bindings.emplace(id++, link.target);
+    }
+    std::shared_ptr<GModel::GNet> sharedPtr{net.get()};
+    bounder.net.swap(sharedPtr);
+    auto key = buildTruthTab(net.get())[0];
+    RWDatabase::BoundGNetList vectorBounder;
+    vectorBounder.push_back(bounder);
+    database.set(key, vectorBounder);
+  }
 }

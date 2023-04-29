@@ -6,6 +6,7 @@
 #pragma once
 
 #include "gate/model/gnet.h"
+#include "gate/optimizer/rwdatabase.h"
 
 #include <kernel/yosys.h>
 
@@ -32,3 +33,7 @@ void translateLibertyToDesign(
 
 std::vector<uint64_t> buildTruthTab(
     const eda::gate::model::GNet *net);
+
+void fillDatabase(
+    const NetData &nets,
+    eda::gate::optimizer::RWDatabase &database);
